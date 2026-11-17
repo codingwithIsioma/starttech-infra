@@ -1,0 +1,56 @@
+# ============================================================
+# Terraform
+# ============================================================
+# Local provider/module cache (re-created by `terraform init`)
+**/.terraform/*
+
+# State files - contain resource IDs and can contain secrets
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+.terraform.lock.hcl
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Variable files - may contain secrets or environment-specific values.
+# Commit the .example file as a template instead.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Saved plan files
+*.tfplan
+tfplan
+
+# CLI config
+.terraformrc
+terraform.rc
+
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored - commit it so
+# everyone (and CI) uses the same provider versions.
+
+# ============================================================
+# OS / editor
+# ============================================================
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# ============================================================
+# Secrets / env
+# ============================================================
+.env
+.env.*
+*.pem
+*.key
+kubeconfig
