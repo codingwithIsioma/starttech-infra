@@ -22,3 +22,29 @@ output "cluster_endpoint" {
   description = "Endpoint for the kubernetes cluster"
   value       = module.eks.cluster_endpoint
 }
+
+output "cloudfront_distribution_id" {
+  description = "The CloudFront Distribution ID"
+  value       = module.cdn.cloudfront-distribution-id
+}
+
+output "cloudfront_domain_name" {
+  description = "The CloudFront Distribution domain name"
+  value       = module.cdn.cloudfront-distribution-domain-name
+}
+
+output "frontend_bucket_name" {
+  description = "The S3 bucket name"
+  value       = module.storage.bucket-name
+}
+
+output "ecr_repository_url" {
+  description = "The URL for the ECR repository"
+  value       = module.storage.ecr-repository-url
+}
+
+output "redis_host" {
+  description = "The Redis endpoint"
+  value       = module.database.redis_host
+}
+

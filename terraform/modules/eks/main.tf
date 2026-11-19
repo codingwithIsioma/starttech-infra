@@ -5,7 +5,7 @@
 # Cluster
 # =============================
 resource "aws_eks_cluster" "control_plane" {
-  name     = "${var.project_name}-cluster"
+  name     = "starttech-cluster"
   version  = "1.35"
   role_arn = aws_iam_role.control_plane_role.arn
   vpc_config {
@@ -45,7 +45,7 @@ resource "aws_iam_role_policy_attachment" "control-plane-AmazonEKSClusterPolicy"
 # ==============================
 resource "aws_eks_node_group" "worker_nodes" {
   cluster_name    = aws_eks_cluster.control_plane.name
-  node_group_name = "${var.project_name}-node-group"
+  node_group_name = "starttech-node-group"
   node_role_arn   = aws_iam_role.worker_nodes_role.arn
   subnet_ids      = var.private_subnet_ids
   scaling_config {

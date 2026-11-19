@@ -8,7 +8,6 @@
 *.tfstate
 *.tfstate.*
 .terraform.tfstate.lock.info
-.terraform.lock.hcl
 
 # Crash logs
 crash.log
