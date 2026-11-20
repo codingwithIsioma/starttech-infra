@@ -7,3 +7,8 @@ variable "s3-bucket-regional-domain-name" {
   description = "The S3 bucket's regional domain name"
   type        = string
 }
+
+variable "alb_dns_name" {
+  description = "The ALB domain name"
+  type        = string
+}

@@ -27,7 +27,7 @@ resource "aws_cloudfront_distribution" "s3-distribution" {
 
   # Origin 2: ALB (Backend)
   origin {
-    domain_name = "placeholder.example.com"
+    domain_name = var.alb_dns_name
     origin_id   = local.alb_origin_id
 
     custom_origin_config {
