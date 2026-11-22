@@ -1,0 +1,24 @@
+name: Infrastructure Pipeline
+
+on:
+    push:
+        branches: [ci-workflow]
+        paths: ['terraform/']
+
+permissions:
+    contents: read
+
+jobs:    
+    test:
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            - name: Check out the code
+              uses: actions/checkout@v7
+            
+            - name: Format terraform code
+              run: terraform fmt
+            
+            - name: Validate terraform code
+              run: terraform validate
+            
