@@ -47,5 +47,5 @@ jobs:
                 -backend-config="region=${{ secrets.AWS_REGION }}"
 
             - name: Terraform Plan
-              run: terraform plan -auto-approve -input=false
+              run: terraform plan -no-color -input=false
             
