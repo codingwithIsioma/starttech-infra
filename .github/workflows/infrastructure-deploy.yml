@@ -32,4 +32,7 @@ jobs:
             
             - name: Validate terraform code
               run: terraform validate
+
+            - name: Run terraform code
+              run: terraform apply -auto-approve=true
             
