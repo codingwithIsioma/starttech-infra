@@ -25,13 +25,16 @@ jobs:
               uses: hashicorp/setup-terraform@v4
             
             - name: Format terraform code
-              run: terraform fmt -check
+              run: terraform fmt -check -recursive
             
             - name: Terraform Init
               run: terraform init -backend=false
             
             - name: Validate terraform code
               run: terraform validate
+
+            - name: Migrate state
+              run: terraform init -migrate-state=true
 
             - name: Run terraform code
               run: terraform apply -auto-approve=true
