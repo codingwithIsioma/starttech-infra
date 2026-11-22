@@ -43,7 +43,7 @@ jobs:
             - name: Terraform Init (with S3 backend)
               run: >
                 terraform init -reconfigure
-                -backend-config="bucket${{ secrets.STATE_BUCKET }}"
+                -backend-config="bucket=${{ secrets.STATE_BUCKET }}"
                 -backend-config="region=${{ secrets.AWS_REGION }}"
 
             - name: Terraform Plan
