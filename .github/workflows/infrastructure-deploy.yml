@@ -3,7 +3,9 @@ name: Infrastructure Pipeline
 on:
     push:
         branches: [features/ci-workflow]
-        paths: ['terraform/**']
+        paths:
+            - 'terraform/**'
+            - '.github/workflows/infrastructure-deploy.yml'
 
 permissions:
     contents: read
