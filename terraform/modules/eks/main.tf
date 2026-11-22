@@ -4,6 +4,7 @@
 # =============================
 # Cluster
 # =============================
+# EKS control plane - runs in the private subnets; whoever creates it gets cluster admin
 resource "aws_eks_cluster" "control_plane" {
   name     = "starttech-cluster"
   version  = "1.35"
@@ -17,6 +18,10 @@ resource "aws_eks_cluster" "control_plane" {
   }
 
   depends_on = [aws_iam_role_policy_attachment.control-plane-AmazonEKSClusterPolicy]
+
+  tags = {
+    Name = "${var.project_name}-eks-cluster"
+  }
 }
 
 # Control Plane IAM Policies
@@ -37,8 +42,13 @@ resource "aws_iam_role" "control_plane_role" {
       },
     ]
   })
+
+  tags = {
+    Name = "${var.project_name}-control-plane-role"
+  }
 }
 
+# Attach the AWS-managed EKS cluster policy to the control plane role
 resource "aws_iam_role_policy_attachment" "control-plane-AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.control_plane_role.name
@@ -47,6 +57,7 @@ resource "aws_iam_role_policy_attachment" "control-plane-AmazonEKSClusterPolicy"
 # ==============================
 # Worker Nodes
 # ==============================
+# Managed node group - 2 to 3 t3.medium worker nodes in the private subnets
 resource "aws_eks_node_group" "worker_nodes" {
   cluster_name    = aws_eks_cluster.control_plane.name
   node_group_name = "starttech-node-group"
@@ -60,6 +71,10 @@ resource "aws_eks_node_group" "worker_nodes" {
   instance_types = ["t3.medium"]
 
   depends_on = [aws_iam_role_policy_attachment.worker-node-AmazonEC2ContainerRegistryReadOnly, aws_iam_role_policy_attachment.worker-node-AmazonEKS_CNI_Policy, aws_iam_role_policy_attachment.worker-node-AmazonEKSWorkerNodePolicy]
+
+  tags = {
+    Name = "${var.project_name}-node-group"
+  }
 }
 
 # Worker Node IAM Policies
@@ -75,8 +90,13 @@ resource "aws_iam_role" "worker_nodes_role" {
     }]
     Version = "2012-10-17"
   })
+
+  tags = {
+    Name = "${var.project_name}-node-group-role"
+  }
 }
 
+# AWS-managed policies the worker nodes need: join the cluster, pod networking (CNI) and pulling images from ECR
 resource "aws_iam_role_policy_attachment" "worker-node-AmazonEKSWorkerNodePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.worker_nodes_role.name
@@ -104,10 +124,15 @@ locals {
   oidc_host = replace(aws_eks_cluster.control_plane.identity[0].oidc[0].issuer, "https://", "")
 }
 
+# Register the cluster's OIDC issuer with IAM so IAM can trust its service account tokens
 resource "aws_iam_openid_connect_provider" "eks" {
   client_id_list  = ["sts.amazonaws.com"]
   url             = aws_eks_cluster.control_plane.identity[0].oidc[0].issuer
   thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
+
+  tags = {
+    Name = "${var.project_name}-eks-oidc"
+  }
 }
 
 # Role only the controller's service account can assume
@@ -128,13 +153,23 @@ resource "aws_iam_role" "lb_controller" {
       }
     }]
   })
+
+  tags = {
+    Name = "${var.project_name}-lb-controller-role"
+  }
 }
 
+# Permissions the controller needs to create and manage ALBs (AWS's published policy)
 resource "aws_iam_policy" "lb_controller" {
   name   = "${var.project_name}-lb-controller-policy"
   policy = file("${path.module}/iam_policy.json")
+
+  tags = {
+    Name = "${var.project_name}-lb-controller-policy"
+  }
 }
 
+# Attach that policy to the controller's role
 resource "aws_iam_role_policy_attachment" "lb_controller" {
   role       = aws_iam_role.lb_controller.name
   policy_arn = aws_iam_policy.lb_controller.arn

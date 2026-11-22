@@ -7,6 +7,7 @@ locals {
   alb_origin_id = "ALB-Backend"
 }
 
+# Origin Access Control - lets CloudFront sign its requests to the private S3 bucket
 resource "aws_cloudfront_origin_access_control" "main-oac" {
   name                              = "${var.project_name}-oac"
   origin_access_control_origin_type = "s3"
@@ -14,6 +15,7 @@ resource "aws_cloudfront_origin_access_control" "main-oac" {
   signing_protocol                  = "sigv4"
 }
 
+# CloudFront distribution - serves the frontend from S3 and forwards /api/* to the ALB
 resource "aws_cloudfront_distribution" "s3-distribution" {
   enabled             = true
   default_root_object = "index.html"
@@ -97,5 +99,9 @@ resource "aws_cloudfront_distribution" "s3-distribution" {
   }
   viewer_certificate {
     cloudfront_default_certificate = true
+  }
+
+  tags = {
+    Name = "${var.project_name}-cloudfront"
   }
 }
