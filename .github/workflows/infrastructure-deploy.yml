@@ -2,10 +2,11 @@ name: Infrastructure Pipeline
 
 on:
     push:
-        branches: [features/ci-workflow]
-        paths:
-            - 'terraform/**'
-            - '.github/workflows/infrastructure-deploy.yml'
+      branches: [main]
+      paths:
+        - 'terraform/**'
+    pull_request:
+      branches: [main]
 
 permissions:
     contents: read
@@ -13,7 +14,7 @@ permissions:
 jobs:    
     test:
         runs-on: ubuntu-latest
-        timeout-minutes: 10
+        timeout-minutes: 60
         defaults:
             run:
                 working-directory: terraform
@@ -47,5 +48,10 @@ jobs:
                 -backend-config="region=${{ secrets.AWS_REGION }}"
 
             - name: Terraform Plan
+              if: github.event_name == 'pull_request'
               run: terraform plan -no-color -input=false
+
+            - name: Terraform Apply
+              if: github.event_name == 'push'
+              run: terraform apply -auto-approve -input=false
             
