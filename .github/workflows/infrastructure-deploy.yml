@@ -2,7 +2,7 @@ name: Infrastructure Pipeline
 
 on:
     push:
-        branches: [ci-workflow]
+        branches: [features/ci-workflow]
         paths: ['terraform/']
 
 permissions:
