@@ -1,0 +1,57 @@
+name: Infrastructure Pipeline
+
+on:
+    push:
+      branches: [main]
+      paths:
+        - 'terraform/**'
+    pull_request:
+      branches: [main]
+
+permissions:
+    contents: read
+
+jobs:    
+    test:
+        runs-on: ubuntu-latest
+        timeout-minutes: 60
+        defaults:
+            run:
+                working-directory: terraform
+        steps:
+            - name: Check out the code
+              uses: actions/checkout@v7
+
+            - name: Set up terraform on runner
+              uses: hashicorp/setup-terraform@v4
+            
+            - name: Format terraform code
+              run: terraform fmt -check -recursive
+            
+            - name: Terraform Init
+              run: terraform init -backend=false
+            
+            - name: Validate terraform code
+              run: terraform validate
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v6.3.0
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: ${{ secrets.AWS_REGION }}
+
+            - name: Terraform Init (with S3 backend)
+              run: >
+                terraform init -reconfigure
+                -backend-config="bucket=${{ secrets.STATE_BUCKET }}"
+                -backend-config="region=${{ secrets.AWS_REGION }}"
+
+            - name: Terraform Plan
+              if: github.event_name == 'pull_request'
+              run: terraform plan -no-color -input=false
+
+            - name: Terraform Apply
+              if: github.event_name == 'push'
+              run: terraform apply -auto-approve -input=false
+            
